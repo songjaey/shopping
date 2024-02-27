@@ -1,5 +1,6 @@
 package com.weapon.shop.entity;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Setter
 @Getter
-public class ItemImg {
+public class ItemImg extends BaseEntity {
     @Id
     @Column(name="item_img_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,11 +28,6 @@ public class ItemImg {
     @Column
     private String repImgYn;
 
-    @Column
-    private LocalDateTime regDate;
-
-    @Column
-    private LocalDateTime updateDate;
 
     @ManyToOne
     @JoinColumn(name="item_id")

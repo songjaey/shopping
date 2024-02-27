@@ -1,6 +1,7 @@
 package com.weapon.shop.service;
 
 import com.weapon.shop.entity.ItemImg;
+import com.weapon.shop.repository.ItemImgRepository;
 import com.weapon.shop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public class ItemImgService {
     @Value("${itemImgLocation}")
     private String imgLocation;
 
-    private final ItemRepository itemRepository;
+    private final ItemImgRepository itemImgRepository;
 
     private final FileService  fileService;
 
@@ -29,7 +30,12 @@ public class ItemImgService {
         String imgUrl = "";
 
         if( !StringUtils.isEmpty(oriName)){
-
+            imgName = fileService.uploadFile(imgLocation, oriName, multipartFile.getBytes());
+            imgUrl = "/images/item/"+imgName;
         }
+        itemImg.setImgUrl(imgUrl);
+        itemImg.setImgName(imgName);
+        itemImg.setOriImgName(oriName);
+        itemImgRepository.save(itemImg);
     }
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.bytebuddy.asm.Advice;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @ToString
-public class Item {
+public class Item extends BaseEntity{
 
     @Id
     @Column(name="item_id")
@@ -29,17 +30,12 @@ public class Item {
     @Column(nullable= false)
     private int stockNumber;
 
-    @Lob
+    @Type( type = "org.hibernate.type.TextType")
     @Column(nullable = false)
     private String itemDetail;
 
     @Enumerated( EnumType.STRING )
     private ItemSellStatus itemSellStatus;
-    @Column
-    private LocalDateTime regTime;
-    @Column
-    private LocalDateTime updateTime;
-
 }
 
 /*

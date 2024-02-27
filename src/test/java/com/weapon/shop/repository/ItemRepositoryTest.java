@@ -13,15 +13,16 @@ import org.springframework.test.context.TestPropertySource;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 class ItemRepositoryTest {
+
     @Autowired
     ItemRepository itemRepository;
 
@@ -35,36 +36,41 @@ class ItemRepositoryTest {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QItem qItem = QItem.item;
         JPAQuery<Item> query = queryFactory.selectFrom(qItem)
-                .where (qItem.itemNm.eq("테스트 상품2"))
+                .where(qItem.itemNm.eq("테스트 상품2"))
                 .orderBy(qItem.price.desc());
         List<Item> itemList = query.fetch();
+
         for(Item item : itemList)
             System.out.println( item );
 
         // select * from item where item_nm = '테스트 상품2' order by price desc
-        // findByItemOrderByPriceDesc(String itemNm);
-
+        //  findByItemNmOrderByPriceDesc(String itemNm);
     }
 
+
+
     @Test
-    @DisplayName("==============상품 한개 저장 테스트==================")
+    @DisplayName("================상품 한개 저장 테스트================")
     public void createTest(){
         Item item = new Item();
         item.setItemNm("테스트 상품");
         item.setPrice(10000);
         item.setItemDetail("상품 상세 설명");
-        item.setItemSellStatus(ItemSellStatus.SELL);
+        item.setItemSellStatus( ItemSellStatus.SELL);
         item.setStockNumber(100);
-        item.setRegTime(LocalDateTime.now());
-        item.setUpdateTime(LocalDateTime.now());
+        item.setRegTime( LocalDateTime.now());
+        item.setUpdateTime( LocalDateTime.now());
 
-        Item saveItem = itemRepository.save(item);
-        System.out.println( saveItem.toString());
+        Item saveItem = itemRepository.save( item );
+        System.out.println(  saveItem.toString() );
     }
+
+
     public void createItemList(){
-        for(int i=1; i<=10; i++){
-            int a = (int)Math.floor(Math.random() * 5 ) + 1;
-            int b = (int)Math.floor(Math.random() * 5 ) + 1;
+        for( int i=1; i<=10; i++) {
+            int a = (int)Math.floor(Math.random() * 5 )+1;
+            int b = (int)Math.floor(Math.random() * 5 )+1;
+
             Item item = new Item();
             item.setItemNm("테스트 상품"+a);
             item.setPrice(10000*a);
@@ -78,6 +84,7 @@ class ItemRepositoryTest {
         }
     }
 
+
     @Test
     @DisplayName("상품명 조회 테스트")
     public void findItemNm(){
@@ -85,30 +92,21 @@ class ItemRepositoryTest {
         List<Item> itemList = itemRepository.findByItemNm("테스트 상품3");
         for(Item item : itemList)
             System.out.println(item);
-        if( itemList.isEmpty())
-            System.out.println("테스트 상품3은 없습니다");
+        if( itemList.isEmpty() )
+            System.out.println("테스트 상품3 은 없습니다.");
     }
 
     @Test
     @DisplayName("상품명 또는 상품상세 설명으로 검색")
-    public void itemNmOrItemDetail(){
-        this.createItemList();
+    public void itemNmOritemDetail(){
+        this.createItemList(); //10개 상품 등록
         List<Item> itemList = itemRepository.findByItemNmOrItemDetail("테스트 상품2", "상품 상세 설명4");
-        for( Item item : itemList )
+        for(Item item : itemList)
             System.out.println( item );
-        if( itemList.isEmpty())
+
+        if( itemList.isEmpty() )
             System.out.println("결과 없음");
 
-    }
-    @Test
-    @DisplayName("가격이 30000원인 상품 검색")
-    public void itemPrice(){
-        this.createItemList();
-        List<Item> itemList = itemRepository.findByPrice(30000);
-        for( Item item : itemList)
-            System.out.println(item);
-        if( itemList.isEmpty())
-            System.out.println("결과 없음");
     }
 
     @Test
@@ -116,29 +114,36 @@ class ItemRepositoryTest {
     public void lessPrice(){
         this.createItemList();
         List<Item> itemList = itemRepository.findByPriceLessThanEqualOrderByPriceDesc(30000);
-        for(Item item: itemList)
-            System.out.println(item);
+
+        for( Item item: itemList)
+            System.out.println( item );
+
         if(itemList.isEmpty())
-            System.out.println("결과 x");
+            System.out.println("결과 없다");
     }
+
+
     @Test
-    @DisplayName("15000~35000 사이의 상품(내림차순)")
-    public void lessPriceAndGreaterPrice(){
+    @DisplayName("상품가격15000~35000 조회")
+    public void lessBetweenPrice(){
         this.createItemList();
-        List<Item> itemList = itemRepository.findByPriceBetweenOrderByPriceDesc(35000,15000);
-        for(Item item: itemList)
-            System.out.println(item);
+        List<Item> itemList = itemRepository.findByPriceBetweenOrderByPriceDesc(15000,35000);
+
+        for( Item item: itemList)
+            System.out.println( item );
+
         if(itemList.isEmpty())
-            System.out.println("결과 x");
+            System.out.println("결과 없다");
     }
+
+
     @Test
-    @DisplayName("상품설명 JPQL 테스트")
+    @DisplayName("상품상세 설명 JPQL 테스트")
     public void itemDetailTest(){
         this.createItemList();
         List<Item> itemList = itemRepository.findByItemDetail("설명3");
         for(Item item: itemList)
-            System.out.println(item);
+            System.out.println( item );
+
     }
-
-
 }
