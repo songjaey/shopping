@@ -34,8 +34,20 @@ public class Item extends BaseEntity{
     @Column(nullable = false)
     private String itemDetail;
 
-    @Enumerated( EnumType.STRING )
-    private ItemSellStatus itemSellStatus;
+    @Enumerated(EnumType.STRING)
+    private ItemSellStatus itemSellStatus; //상품 판매 가능 상태
+
+    public void removeStock(int count){
+        int restStock = this.stockNumber - count;
+        if( restStock < 0 ){
+            throw new IllegalStateException("상품의 재고가 부족합니다." +
+                    "현재 재고 수량 : " + this.stockNumber);
+        }
+        this.stockNumber = restStock;
+    }
+    public void addStock(int count){
+        this.stockNumber += count;
+    }
 }
 
 /*

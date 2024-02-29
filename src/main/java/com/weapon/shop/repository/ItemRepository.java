@@ -10,26 +10,28 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Long>,
-        QuerydslPredicateExecutor<Item> {
+public interface ItemRepository extends JpaRepository<Item,Long>,
+        QuerydslPredicateExecutor<Item>, ItemRepositoryCustom {
+
 
     // 상품 이름으로 조회
     List<Item> findByItemNm(String itemNm);
 
+    // 상품명, 상품상세설명 으로 검색
     List<Item> findByItemNmOrItemDetail(String itemNm, String itemDetail);
-
-    List<Item> findByPrice(int price);
 
     List<Item> findByPriceLessThanEqualOrderByPriceDesc(Integer price);
 
     List<Item> findByPriceBetweenOrderByPriceDesc(Integer price1, Integer price2);
 
-    //findByItemDetailLikeOrderByPriceDesc(String itemDetail)  // JPQL 방식
+    // findByItemDetailLikeOrderByPriceDesc(String itemDetail)
     @Query("select i from Item i where i.itemDetail like %:itemDetail% order by i.price desc")
     List<Item> findByItemDetail(@Param("itemDetail") String itemDetail);
 
-    @Query(value="select * from item where item_detail like %:itemDetail% order by price desc", nativeQuery = true)
+    @Query(value="select * from item where item_detail like %:itemDetail% order by price desc",
+            nativeQuery = true)
     List<Item> findByItemDetailNative(@Param("itemDetail") String itemDetail);
+
 }
 /*
     JPA 와 JPQL의 단점은 에러발견이 안된다.

@@ -1,0 +1,71 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragment/basic}">
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{css/itemForm.css}">
+</th:block>
+<th:block layout:fragment="script">
+</th:block>
+
+    <div layout:fragment="content">
+
+        <h2 class="my-4">구매이력</h2>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>상품 ID</th>
+                    <th>상품명</th>
+                    <th>상태</th>
+                    <th>등록자</th>
+                    <th>등록일</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, stat: ${items.getContent()}">
+                    <td th:text="${item.id}"></td>
+                    <td>
+                        <a th:href="@{'/admin/item/'+${item.id} }">
+                            <span th:text="${item.itemNm}"></span>
+                        </a>
+                    </td>
+                    <td th:text="${item.itemSellStatus}"></td>
+                    <td th:text="${item.createdBy}"></td>
+                    <td th:text="${item.regTime}"></td>
+                    <!-- 다른 열 추가 -->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div th:with="start=${ (items.number/maxPage)*maxPage + 1} ,
+            end= ( ${ (items.totalPages == 0) ? 1 : ( start + (maxPage-1) < items.totalPages ? start + (maxPage-1) :items.totalPages)} )">
+
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item" th:classappend="${items.number eq 0}? 'disabled' : '' ">
+                    <a th:href="@{'/'+'?searchQuery='+${itemSearchDto.searchQuery}+'&page='+${items.number-1}}" class="page-link" aria-label="Prev">
+                        <span aria-hidden="true">Prev</span>
+                    </a>
+                </li>
+                <li th:each="page : ${#numbers.sequence(start,end)}" th:classappend="${items.number eq page-1}? 'active' : ''" class="page-item">
+                    <a th:href="@{'/'+'?searchQuery='+${itemSearchDto.searchQuery}+'&page='+${page-1}}" class="page-link" th:text="${page}"></a>
+                </li>
+                <!-- 다음 버튼 -->
+                <li class="page-item" th:classappend="${items.number+1 ge items.totalPages}?'disabled' : ''">
+                    <a th:href="@{'/'+'?searchQuery='+${itemSearchDto.searchQuery}+'&page='+${items.number+1}}" aria-label="Next" class="page-link">
+                        <span aria-hidden="true">Next</span>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+
+</html>
