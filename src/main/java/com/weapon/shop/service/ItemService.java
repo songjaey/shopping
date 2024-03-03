@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -27,7 +26,13 @@ public class ItemService {
     private final ItemImgRepository itemImgRepository;
     private final ItemImgService itemImgService;
 
-    //아이템 상세보기 - 일반 유저용
+    @Transactional(readOnly = true)
+    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable){
+        return itemRepository.getAdminItemPage(itemSearchDto, pageable);
+    }
+
+
+    //아이템 상세보기
     public ItemFormDto getItemDtl(Long itemId){
         List<ItemImg> itemImgs = itemImgRepository.findByItemIdOrderByIdAsc(itemId);
         List<ItemImgDto> itemImgDtoList = new ArrayList<>();
@@ -39,14 +44,18 @@ public class ItemService {
         ItemFormDto itemFormDto = ItemFormDto.of(item);
         itemFormDto.setItemImgDtoList(itemImgDtoList);
         return itemFormDto;
-
     }
+
+
 
     //메인페이지에 출력할 상품들 가져오기( 페이징 - 5개씩 보여주기)
     @Transactional(readOnly = true)
     public Page<MainItemDto> getMainItem(ItemSearchDto itemSearchDto, Pageable pageable){
         return itemRepository.getMainItem(itemSearchDto,pageable);
     }
+
+
+
 
     // 상품 내용과 이미지 저장
     public Long saveItem(ItemFormDto itemFormDto,
@@ -69,10 +78,4 @@ public class ItemService {
         }
         return item.getId();
     }
-
-    @Transactional(readOnly = true)
-    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable){
-        return itemRepository.getAdminItemPage(itemSearchDto, pageable);
-    }
-
 }

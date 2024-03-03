@@ -24,12 +24,12 @@ import java.util.Optional;
 @Controller
 @RequiredArgsConstructor
 public class ItemController {
-    //상품 등록, 상품 수정, 상품 삭제, 상품 작성폼, 상품 상세, 상품 관리
+    // 상품 등록, 상품 수정, 상품 삭제, 상품 작성폼, 상품 상세, 상품 관리
     private final ItemService itemService;
 
     @GetMapping("/admin/item/new")
-    public String itemForm(Model model){
-        model.addAttribute("itemFormDto", new ItemFormDto());
+    public String itemForm(Model model){  //상품 작성 페이지 제공
+        model.addAttribute("itemFormDto",new ItemFormDto());
         return "item/itemForm";
     }
 
@@ -37,18 +37,20 @@ public class ItemController {
     public String itemNew(@Valid ItemFormDto itemFormDto,
                           BindingResult bindingResult, Model model,
                           @RequestParam("itemImgFile") List<MultipartFile> multipartFileList){
-        if(bindingResult.hasErrors()){
+        if(bindingResult.hasErrors()){  // 유효성 검사에서 에러 발생
             return "item/itemForm";
         }
-        if( multipartFileList.get(0).isEmpty() && itemFormDto.getId() == null){
-            //이미지가 한장도 선택되지 않았다면, 무조건 한장 이상은 선택해야한다.
+        if( multipartFileList.get(0).isEmpty() && itemFormDto.getId()==null ){
+            // 이미지가 한장도 선택 하지 않았다면 , 무조건 한장 이상은 선택해야된다.
             model.addAttribute("errorMessage","첫번째 상품 이미지는 필수 등록입니다.");
             return "item/itemForm";
         }
+
+        // 유효성검사 통과 하였고 이미지도 한장 이상 선택된 경우라면  업로드및 데이터베이스 저장
         try{
             itemService.saveItem(itemFormDto, multipartFileList);
         }catch(Exception e){
-            model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");
+            model.addAttribute("errorMessage","상품 등록 중 에러가 발생 하였습니다.");
             return "item/itemForm";
         }
 
@@ -58,13 +60,13 @@ public class ItemController {
     @GetMapping("/item/{itemId}")
     public String itemDtl(@PathVariable Long itemId, Model model){
 
-        model.addAttribute("item", itemService.getItemDtl(itemId));
+        model.addAttribute("item" , itemService.getItemDtl( itemId ));
         return "item/itemDtl";
     }
 
-    @GetMapping( value = {"/admin/items", "/admin/items/{page}"})
-    public String itemMng(ItemSearchDto itemSearchDto,
-                          @PathVariable("page") Optional<Integer> page, Model model){
+    @GetMapping(value = {"/admin/items", "/admin/items/{page}"})
+    public String itemManage(ItemSearchDto itemSearchDto,
+                             @PathVariable("page") Optional<Integer> page, Model model){
         Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 10);
         Page<Item> items = itemService.getAdminItemPage(itemSearchDto, pageable);
         model.addAttribute("items", items);
