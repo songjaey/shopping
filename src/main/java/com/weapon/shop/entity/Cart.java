@@ -18,7 +18,7 @@ public class Cart extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "cart_member_id")
     private Member member;
 
@@ -43,7 +43,6 @@ public class Cart extends BaseEntity {
         }
         return null;
     }
-
 
     public void deleteCartItem(Long cartItemId) {
         // 장바구니에서 해당 상품 제거

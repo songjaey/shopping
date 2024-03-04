@@ -75,4 +75,19 @@ public class OrderService {
         order.cancelOrder();
     }
 
+    public Long orders(List<OrderDto> orderDtoList, String email){
+
+        Member member = memberRepository.findByEmail(email);
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for( OrderDto orderDto : orderDtoList){
+            Item item = itemRepository.findById(orderDto.getItemId() ).get();
+
+            OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount());
+            orderItems.add(orderItem);
+        }
+        Order order = Order.createOrder(member, orderItems);
+        orderRepository.save(order);
+        return order.getId();
+    }
 }

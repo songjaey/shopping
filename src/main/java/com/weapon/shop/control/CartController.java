@@ -5,9 +5,13 @@ import com.weapon.shop.dto.CartItemDto;
 import com.weapon.shop.dto.CartOrderDto;
 import com.weapon.shop.dto.OrderDto;
 import com.weapon.shop.entity.CartItem;
+import com.weapon.shop.entity.Item;
+import com.weapon.shop.repository.CartItemRepository;
+import com.weapon.shop.repository.ItemRepository;
 import com.weapon.shop.service.CartService;
 import com.weapon.shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,6 +29,8 @@ import java.util.List;
 public class CartController {
 
     private final CartService cartService;
+    private final CartItemRepository cartItemRepository;
+    private final ItemRepository itemRepository;
 
     @PostMapping("/cart")
     public @ResponseBody ResponseEntity cartPut(@RequestBody @Valid CartItemDto cartItemDto,
@@ -40,15 +46,15 @@ public class CartController {
             return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
         String email = principal.getName();
-        Long cartId;
+        Long cartItemId;
         try{
-            cartId = cartService.addCart(cartItemDto, email);
+            cartItemId = cartService.addCart(cartItemDto, email);
         }catch(Exception e){
             System.out.println("카트 데이터베이스 저장 실패");
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         //return new ResponseEntity<Long>(cartId, HttpStatus.OK);
-        return new ResponseEntity<Long>(1L, HttpStatus.OK);
+        return new ResponseEntity<Long>(cartItemId, HttpStatus.OK);
     }
 
     @GetMapping(value = "/cart")
@@ -76,22 +82,16 @@ public class CartController {
     }
     @DeleteMapping(value = "/cartItem/{cartItemId}")
     public @ResponseBody ResponseEntity deleteCartItem(@PathVariable("cartItemId") Long cartItemId, Principal principal) {
-        //장바구니 상품 삭제
-        return null;
+            cartService.deleteCartItem(cartItemId);
+            return new ResponseEntity<Long>(cartItemId, HttpStatus.OK);
     }
 
     @PostMapping(value = "/cart/orders")
-    public @ResponseBody ResponseEntity<String> orderCartItem(@RequestBody List<CartOrderDto> cartOrderDtoList, Principal principal) {
+    public @ResponseBody ResponseEntity orderCartItem(@RequestBody CartOrderDto cartOrderDto, Principal principal) {
         // 장바구니에서 상품 주문
-        String email = principal.getName();
-        try {
-            Long orderId = cartService.orderCartItem(cartOrderDtoList, email);
-            System.out.println("ok");
-            return new ResponseEntity<>("success", HttpStatus.OK);
-        } catch (RuntimeException e) {
-            e.printStackTrace(); // 예외 메시지 및 스택 트레이스 출력
-            System.out.println("save failure");
-            return new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<CartOrderDto> cartOrderDtoList = cartOrderDto.getCartOrderDtoList();
+
+        Long orderId = cartService.orderCartItem(cartOrderDtoList, principal.getName());
+        return new ResponseEntity<Long>(orderId, HttpStatus.OK);
     }
 }

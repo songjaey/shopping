@@ -11,8 +11,6 @@ public class CartOrderDto {
 
     private Long cartItemId;
 
-    private int count;
-
     private List<CartOrderDto> cartOrderDtoList;
 
 //    public int getCount() {

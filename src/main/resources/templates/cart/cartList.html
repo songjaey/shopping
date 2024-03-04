@@ -34,8 +34,6 @@
                 getOrderTotalPrice();
 
             });
-
-
         });
         function getOrderTotalPrice(){  // 선택한 상품들의 총 결제 금액
             var orderTotalPrice = 0;
@@ -69,35 +67,55 @@
         function updateCartItemCount(cartItemId, count){ //수량 변화
             //json 전송
         }
-        function deleteCartItem(obj){ // 장바구니에서 상품 삭제
-            //json 전송
+
+        function deleteCartItem(obj) {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            var cartItemId = $(obj).data("cartItemId")
+            var url = "/cartItem/";
+
+            $.ajax({
+                url: url + cartItemId,
+                type: "DELETE",
+                contentType: "application/json",
+                //data: JSON.stringify(paramData),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType: "json",
+                success: function (result, status) {
+                    alert("상품이 삭제되었습니다.");
+                    location.reload();
+                },
+                error: function (jqXHR, status, error) {
+                    console.log(jqXHR);
+                    if (jqXHR.status == "200") {
+                        alert("로그인 후 이용해주세요");
+                        location.href = "/members/login";
+                    } else {
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
         }
 
         function orders() {
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
-            var cartOrderDtoList = [];
+            var dataList = new Array();
+            var paramData = new Object();
 
             $("input[name='cartChkBox']:checked").each(function () {
                 var cartItemId = $(this).val();
-                var count = $(this).closest("tr").find("input[name='count']").val();
-
-                var cartOrderDto = {
-                    cartItemId: cartItemId,
-                    count: count
-                };
-
-                cartOrderDtoList.push(cartOrderDto);
+                var data = new Object();
+                data["cartItemId"] = cartItemId;
+                dataList.push(data);
             });
 
-            // 주문할 상품이 없는 경우에 대한 체크
-            if (cartOrderDtoList.length === 0) {
-                alert("주문할 상품을 선택해주세요.");
-                return;
-            }
+            paramData["cartOrderDtoList"] = dataList;
 
             var url = "/cart/orders";
-            var paramData = cartOrderDtoList;  // 직접 배열 형태로 전달
+
             var param = JSON.stringify(paramData);
 
             $.ajax({
@@ -111,8 +129,8 @@
                 dataType: "json",
                 cache: false,
                 success: function (result, status) {
-                    alert("상품을 정상적으로 주문했습니다.")
-                    location.href = "/";
+                    alert("상품을 정상적으로 주문했습니다.");
+                    location.href = "/orders";
                 },
                 error: function (jqXHR, status, error) {
                     if (jqXHR.status == "200") {
@@ -166,7 +184,7 @@
                                        th:value="${cartItem.count}" min="1"
                                        onchange="changeCount(this)" class="form-control mr-2" >
                                 <button type="button" class="close" aria-label="Close">
-                                    <span aria-hidden="true" th:data-id="${cartItem.cartItemId}" onclick="deleteCartItem(this)">&times;</span>
+                                    <span aria-hidden="true" th:data-cartItemId="${cartItem.cartItemId}" onclick="deleteCartItem(this)">&times;</span>
                                 </button>
                             </span>
                         </div>
@@ -188,6 +206,8 @@
         <div class="text-center mt-3">
             <button type="button" class="btn btn-primary btn-lg" onclick="orders()">주문하기</button>
         </div>
+
+
 
     </div>
 </div>

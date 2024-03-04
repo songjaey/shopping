@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item,Long>,
         QuerydslPredicateExecutor<Item>, ItemRepositoryCustom {
 
-
     // 상품 이름으로 조회
     List<Item> findByItemNm(String itemNm);
 
